@@ -11,7 +11,7 @@ module Danger
   class DangerJira < Plugin
     # Checks PR for JIRA keys and links them
     #
-    # @param [Array] keys
+    # @param [Array] key
     #         An array of JIRA project keys KEY-123, JIRA-125 etc.
     #
     # @param [String] url
