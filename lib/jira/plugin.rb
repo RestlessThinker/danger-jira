@@ -1,28 +1,35 @@
 module Danger
-  # This is your plugin class. Any attributes or methods you expose here will
-  # be available from within your Dangerfile.
+  # Links JIRA issues to a pull request.
   #
-  # To be published on the Danger plugins site, you will need to have
-  # the public interface documented. Danger uses [YARD](http://yardoc.org/)
-  # for generating documentation from your plugin source, and you can verify
-  # by running `danger plugins lint` or `bundle exec rake spec`.
+  # @example Check PR for the following JIRA project keys and links them
   #
-  # You should replace these comments with a public description of your library.
+  #          jira.check(key: "KEY", url: "https://myjira.atlassian.net/browse")
   #
-  # @example Ensure people are well warned about merging on Mondays
-  #
-  #          my_plugin.warn_on_mondays
-  #
-  # @see  Louie Penaflor/danger-jira
-  # @tags monday, weekends, time, rattata
+  # @see  RestlessThinker/danger-jira
+  # @tags jira
   #
   class DangerJira < Plugin
+    # Checks PR for JIRA keys and links them
+    #
+    # @param [Array] keys
+    #         An array of JIRA project keys KEY-123, JIRA-125 etc.
+    #
+    # @param [String] url
+    #         The JIRA url hosted instance.
+    #
+    # @param [String] emoji
+    #         The emoji you want to display in the message.
+    #
+    # @param [Boolean] fail_on_warning
+    #         Option to fail danger if no JIRA issue found in PR title
+    #
+    # @return [void]
+    #
     def check(key: nil, url: nil, emoji: ":link:", fail_on_warning: false)
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
       # Support multiple JIRA projects
-      # ((WEB|DROID|PM)-[0-9]+)
       keys = key.kind_of?(Array) ? key.join("|") : key
       jira_key_regex_string = "((#{keys})-[0-9]+)"
       regexp = Regexp.new(/#{jira_key_regex_string}/)
