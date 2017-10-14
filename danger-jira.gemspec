@@ -6,11 +6,11 @@ require 'jira/gem_version.rb'
 Gem::Specification.new do |spec|
   spec.name          = 'danger-jira'
   spec.version       = Jira::VERSION
-  spec.authors       = ['Louie Penaflor']
-  spec.email         = ['lpenaflor@abodo.com']
-  spec.description   = %q{A short description of danger-jira.}
-  spec.summary       = %q{A longer description of danger-jira.}
-  spec.homepage      = 'https://github.com/Louie Penaflor/danger-jira'
+  spec.authors       = ['RestlessThinker']
+  spec.email         = ['penaflor@gmail.com']
+  spec.description   = %q{A Danger plugin to link JIRA issues to a pull request.}
+  spec.summary       = %q{A Danger plugin to link JIRA issues to a pull request.}
+  spec.homepage      = 'https://github.com/RestlessThinker/danger-jira'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
