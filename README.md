@@ -1,20 +1,28 @@
 # danger-jira
 
-A description of danger-jira.
+[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE.txt)
+[![Gem](https://img.shields.io/gem/v/danger-jira.svg?style=flat)](https://rubygems.org/gems/danger-jira)
+
+A [Danger](https://github.com/danger/danger) plugin for that links JIRA issues to pull requests. Inspired by [danger-plugin-jira-issue](https://github.com/macklinu/danger-plugin-jira-issue)
 
 ## Installation
 
-    $ gem install danger-jira
+Add this line to your Gemfile:
+
+```rb
+gem 'danger-jira'
+```
 
 ## Usage
 
-    Methods and attributes from this plugin are available in
-    your `Dangerfile` under the `jira` namespace.
+```ruby
+jira.check(
+  key: ["KEY", "PM"],
+  url: "https://myjira.atlassian.net/browse"
+  fail_on_warning: true
+)
+```
 
-## Development
+## License
 
-1. Clone this repo
-2. Run `bundle install` to setup dependencies.
-3. Run `bundle exec rake spec` to run the tests.
-4. Use `bundle exec guard` to automatically have tests run as you make changes.
-5. Make your changes.
+MIT
