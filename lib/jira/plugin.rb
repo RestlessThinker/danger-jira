@@ -43,7 +43,7 @@ module Danger
         jira_urls = jira_issues.map { |issue| link(href: ensure_url_ends_with_slash(url), issue: issue) }.join(", ")
         message("#{emoji} #{jira_urls}")
       else
-        msg = "Please add the JIRA issue key to the PR title (e.g. KEY-123)"
+        msg = "This PR does not contain a JIRA issue key in the PR title (e.g. KEY-123)"
         if fail_on_warning
           fail(msg)
         else
