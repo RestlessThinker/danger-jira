@@ -24,7 +24,7 @@ jira.check(
 )
 ```
 
-With "KEY-123" in the PR title, Danger will comment with:
+With "KEY-123" in the PR title or PR body, Danger will comment with:
 
 <table>
   <thead>
