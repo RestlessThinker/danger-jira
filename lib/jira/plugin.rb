@@ -39,6 +39,12 @@ module Danger
         jira_issues << match
       end
 
+      if jira_issues.empty?
+        github.pr_body.gsub(regexp) do |match|
+          jira_issues << match
+        end
+      end
+
       if !jira_issues.empty?
         jira_urls = jira_issues.map { |issue| link(href: ensure_url_ends_with_slash(url), issue: issue) }.join(", ")
         message("#{emoji} #{jira_urls}")
