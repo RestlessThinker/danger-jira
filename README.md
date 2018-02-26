@@ -19,7 +19,7 @@ gem 'danger-jira'
 // Dangerfile
 jira.check(
   key: ["KEY", "PM"],
-  url: "https://myjira.atlassian.net/browse"
+  url: "https://myjira.atlassian.net/browse",
   fail_on_warning: true
 )
 ```
