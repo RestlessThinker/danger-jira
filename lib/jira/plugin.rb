@@ -38,27 +38,11 @@ module Danger
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
-      # Support multiple JIRA projects
-      keys = key.kind_of?(Array) ? key.join("|") : key
-      jira_key_regex_string = "((?:#{keys})-[0-9]+)"
-      regexp = Regexp.new(/#{jira_key_regex_string}/)
-
-      jira_issues = []
-
-      if search_title
-        jira_issues << github.pr_title.scan(regexp)
-      end
-      if search_commits
-        jira_issues << git.commits.map { |commit| commit.message.scan(regexp) }.compact
-      end
-
-      jira_issues.flatten.uniq
-
-      if jira_issues.empty?
-        github.pr_body.gsub(regexp) do |match|
-          jira_issues << match
-        end
-      end
+      jira_issues = find_jira_issues(
+        key: key,
+        search_title: search_title,
+        search_commits: search_commits
+      )
 
       if !jira_issues.empty?
         jira_urls = jira_issues.map { |issue| link(href: ensure_url_ends_with_slash(url), issue: issue) }.join(", ")
@@ -74,6 +58,36 @@ module Danger
     end
 
     private
+
+    def find_jira_issues(key: nil, search_title: true, search_commits: false)
+      # Support multiple JIRA projects
+      keys = key.kind_of?(Array) ? key.join("|") : key
+      jira_key_regex_string = "((?:#{keys})-[0-9]+)"
+      regexp = Regexp.new(/#{jira_key_regex_string}/)
+
+      jira_issues = []
+
+      if search_title
+        github.pr_title.gsub(regexp) do |match|
+          jira_issues << match
+        end
+      end
+
+      if search_commits
+        git.commits.map do |commit|
+          commit.message.gsub(regexp) do |match|
+            jira_issues << match
+          end
+        end
+      end
+
+      if jira_issues.empty?
+        github.pr_body.gsub(regexp) do |match|
+          jira_issues << match
+        end
+      end
+      return jira_issues
+    end
 
     def ensure_url_ends_with_slash(url)
       return "#{url}/" unless url.end_with?("/")
