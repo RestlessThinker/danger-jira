@@ -86,7 +86,7 @@ module Danger
           jira_issues << match
         end
       end
-      return jira_issues
+      return jira_issues.uniq
     end
 
     def ensure_url_ends_with_slash(url)

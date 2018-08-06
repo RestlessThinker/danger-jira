@@ -46,6 +46,12 @@ module Danger
         )
         expect((issues <=> ["WEB-126"]) == 0)
       end
+
+      it "can remove duplicates" do
+        allow(@jira).to receive_message_chain("github.pr_title").and_return("Ticket [WEB-123] and WEB-123")
+        issues = @jira.find_jira_issues(key: "WEB")
+        expect((issues <=> ["WEB-123"]) == 0)
+      end
     end
   end
 end
