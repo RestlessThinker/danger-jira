@@ -33,7 +33,7 @@ module Danger
     #         Option to report if no JIRA issue was found
     #
     # @param [Boolean] skippable
-    #         Option to skip the report if [no-jira] is provided
+    #         Option to skip the report if 'no-jira' is provided on the PR title, description or commits
     #
     # @return [void]
     #
@@ -41,9 +41,7 @@ module Danger
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
-      return if should_skip_jira?
-
-      
+      return if skippable && should_skip_jira?      
 
       jira_issues = find_jira_issues(
         key: key,
