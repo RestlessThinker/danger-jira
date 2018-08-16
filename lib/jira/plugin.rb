@@ -98,8 +98,6 @@ module Danger
       # Consider first occurrence of 'no-jira'
       regexp = Regexp.new('no-jira', true) 
 
-      jira_issues = []
-
       if search_title
         github.pr_title.gsub(regexp) do |match|
           if match.nil? return true
