@@ -47,6 +47,15 @@ module Danger
         expect((issues <=> ["WEB-126"]) == 0)
       end
 
+      it "can find no-jira in pr body" do
+        allow(@jira).to receive_message_chain("github.pr_body").and_return("[no-jira] Ticket doesn't need a jira but [WEB-123] WEB-123")
+        result = @jira.should_skip_jira(
+          search_title: false,
+          search_commits: false
+        )
+        expect((result <=> true) == 0)
+      end
+
       it "can remove duplicates" do
         allow(@jira).to receive_message_chain("github.pr_title").and_return("Ticket [WEB-123] and WEB-123")
         issues = @jira.find_jira_issues(key: "WEB")

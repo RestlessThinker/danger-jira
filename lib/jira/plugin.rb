@@ -32,11 +32,16 @@ module Danger
     # @param [Boolean] report_missing
     #         Option to report if no JIRA issue was found
     #
+    # @param [Boolean] skippable
+    #         Option to skip the report if 'no-jira' is provided on the PR title, description or commits
+    #
     # @return [void]
     #
-    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, fail_on_warning: false, report_missing: true)
+    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, fail_on_warning: false, report_missing: true, skippable: true)
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
+
+      return if skippable && should_skip_jira?      
 
       jira_issues = find_jira_issues(
         key: key,
@@ -88,6 +93,32 @@ module Danger
       end
       return jira_issues.uniq
     end
+
+    def should_skip_jira(search_title: true, search_commits: false)
+      # Consider first occurrence of 'no-jira'
+      regexp = Regexp.new('no-jira', true) 
+
+      if search_title
+        github.pr_title.gsub(regexp) do |match|
+          if match.nil? return true
+        end
+      end
+
+      if search_commits
+        git.commits.map do |commit|
+          commit.message.gsub(regexp) do |match|
+            if match.nil? return true
+          end
+        end
+      end
+
+      github.pr_body.gsub(regexp) do |match|
+          if match.nil? return true
+        end
+
+      return false
+    end
+
 
     def ensure_url_ends_with_slash(url)
       return "#{url}/" unless url.end_with?("/")
