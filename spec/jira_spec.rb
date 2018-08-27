@@ -49,24 +49,7 @@ module Danger
 
       it "can find no-jira in pr body" do
         allow(@jira).to receive_message_chain("github.pr_body").and_return("[no-jira] Ticket doesn't need a jira but [WEB-123] WEB-123")
-        result = @jira.should_skip_jira?(
-          search_title: false,
-          search_commits: false
-        )
-        expect(result).to be(true)
-      end
-
-      it "can find no-jira in commits" do
-        single_commit = Object.new
-        def single_commit.message
-          "Small text change [no-jira]"
-        end
-        commits = [single_commit]
-        allow(@jira).to receive_message_chain("git.commits").and_return(commits)
-        result = @jira.should_skip_jira?(
-          search_title: false,
-          search_commits: true
-        )
+        result = @jira.should_skip_jira?(search_title: false)
         expect(result).to be(true)
       end
 
