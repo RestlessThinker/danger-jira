@@ -24,7 +24,7 @@ jira.check(
   search_commits: false,
   fail_on_warning: false,
   report_missing: true,
-  skipabble: true
+  skippable: true
 )
 ```
 
