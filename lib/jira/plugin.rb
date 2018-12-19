@@ -64,6 +64,11 @@ module Danger
 
     private
 
+    def vcs_host
+      return gitlab if defined? @dangerfile.gitlab
+      return github
+    end
+
     def find_jira_issues(key: nil, search_title: true, search_commits: false)
       # Support multiple JIRA projects
       keys = key.kind_of?(Array) ? key.join("|") : key
@@ -73,7 +78,7 @@ module Danger
       jira_issues = []
 
       if search_title
-        github.pr_title.gsub(regexp) do |match|
+        vcs_host.pr_title.gsub(regexp) do |match|
           jira_issues << match
         end
       end
@@ -87,7 +92,7 @@ module Danger
       end
 
       if jira_issues.empty?
-        github.pr_body.gsub(regexp) do |match|
+        vcs_host.pr_body.gsub(regexp) do |match|
           jira_issues << match
         end
       end
@@ -99,12 +104,12 @@ module Danger
       regexp = Regexp.new("no-jira", true)
 
       if search_title
-        github.pr_title.gsub(regexp) do |match|
+        vcs_host.pr_title.gsub(regexp) do |match|
           return true unless match.empty?
         end
       end
 
-      github.pr_body.gsub(regexp) do |match|
+      vcs_host.pr_body.gsub(regexp) do |match|
         return true unless match.empty?
       end
 
