@@ -35,9 +35,12 @@ module Danger
     # @param [Boolean] skippable
     #         Option to skip the report if 'no-jira' is provided on the PR title, description or commits
     #
+    # @param [Boolean] skip_on_no_issues
+    #         Option to skip the report of all JIRA issues found, only warnings and errors will be produced
+    #
     # @return [void]
     #
-    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, fail_on_warning: false, report_missing: true, skippable: true)
+    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, fail_on_warning: false, report_missing: true, skippable: true, skip_on_no_issues: false)
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
@@ -49,7 +52,7 @@ module Danger
         search_commits: search_commits
       )
 
-      if !jira_issues.empty?
+      if !jira_issues.empty? && !skip_on_no_issues
         jira_urls = jira_issues.map { |issue| link(href: ensure_url_ends_with_slash(url), issue: issue) }.join(", ")
         message("#{emoji} #{jira_urls}")
       elsif report_missing
