@@ -37,12 +37,24 @@ module Danger
         expect(issues).to eq(["WEB-125"])
       end
 
+      it "can find jira issues via branch name" do
+        allow(@jira).to receive_message_chain("github.branch_for_head").and_return("bugfix/WEB-126")
+        issues = @jira.find_jira_issues(
+          key: "WEB",
+          search_title: false,
+          search_commits: false,
+          search_branch: true
+        )
+        expect(issues).to eq(["WEB-126"])
+      end
+
       it "can find jira issues in pr body" do
         allow(@jira).to receive_message_chain("github.pr_body").and_return("[WEB-126]")
         issues = @jira.find_jira_issues(
           key: "WEB",
           search_title: false,
-          search_commits: false
+          search_commits: false,
+          search_branch: false
         )
         expect(issues).to eq(["WEB-126"])
       end

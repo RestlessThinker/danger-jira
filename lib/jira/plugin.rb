@@ -26,6 +26,9 @@ module Danger
     # @param [Boolean] search_commits
     #         Option to search JIRA issues from commit messages
     #
+    # @param [Boolean] search_branch
+    #         Option to search JIRA issues from the name of the PR branch
+    #
     # @param [Boolean] fail_on_warning
     #         Option to fail danger if no JIRA issue found
     #
@@ -37,7 +40,7 @@ module Danger
     #
     # @return [void]
     #
-    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, fail_on_warning: false, report_missing: true, skippable: true)
+    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, search_branch: false, fail_on_warning: false, report_missing: true, skippable: true)
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
@@ -46,7 +49,8 @@ module Danger
       jira_issues = find_jira_issues(
         key: key,
         search_title: search_title,
-        search_commits: search_commits
+        search_commits: search_commits,
+        search_branch: search_branch
       )
 
       if !jira_issues.empty?
@@ -69,7 +73,7 @@ module Danger
       return github
     end
 
-    def find_jira_issues(key: nil, search_title: true, search_commits: false)
+    def find_jira_issues(key: nil, search_title: true, search_commits: false, search_branch: false)
       # Support multiple JIRA projects
       keys = key.kind_of?(Array) ? key.join("|") : key
       jira_key_regex_string = "((?:#{keys})-[0-9]+)"
@@ -88,6 +92,12 @@ module Danger
           commit.message.gsub(regexp) do |match|
             jira_issues << match
           end
+        end
+      end
+
+      if search_branch
+        vcs_host.branch_for_head.gsub(regexp) do |match|
+          jira_issues << match
         end
       end
 
