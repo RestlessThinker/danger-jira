@@ -36,11 +36,11 @@ module Danger
     #         Option to report if no JIRA issue was found
     #
     # @param [Boolean] skippable
-    #         Option to skip the report if 'no-jira' is provided on the PR title, description or commits
+    #         Option to skip the report if 'no-jira' is provided on the PR title, description or commits. 'nojira' is also allowed on branch names.
     #
     # @return [void]
     #
-    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, search_branch: false, fail_on_warning: false, report_missing: true, skippable: true)
+    def check(key: nil, url: nil, emoji: ":link:", search_title: true, search_commits: false, search_branch: false, search_body: false, fail_on_warning: false, report_missing: true, skippable: true)
       throw Error("'key' missing - must supply JIRA issue key") if key.nil?
       throw Error("'url' missing - must supply JIRA installation URL") if url.nil?
 
@@ -50,14 +50,20 @@ module Danger
         key: key,
         search_title: search_title,
         search_commits: search_commits,
-        search_branch: search_branch
+        search_branch: search_branch,
+        search_body: search_body
       )
 
       if !jira_issues.empty?
         jira_urls = jira_issues.map { |issue| link(href: ensure_url_ends_with_slash(url), issue: issue) }.join(", ")
         message("#{emoji} #{jira_urls}")
       elsif report_missing
-        msg = "This PR does not contain any JIRA issue keys in the PR title or commit messages (e.g. KEY-123)"
+       msg = error_message_for(
+          search_title,
+          search_commits,
+          search_branch,
+          search_body
+        )
         if fail_on_warning
           fail(msg)
         else
@@ -73,7 +79,16 @@ module Danger
       return github
     end
 
-    def find_jira_issues(key: nil, search_title: true, search_commits: false, search_branch: false)
+    def error_message_for(search_title, search_commits, search_branch, search_body)
+      error_string = ""
+      error_string += ", title" if search_title
+      error_string += ", commit messages" if search_commits
+      error_string += ", branch name" if search_branch
+      error_string += ", body" if search_body
+      return "This PR does not contain any JIRA issue keys in the PR" + error_string[1..-1] + " (e.g. KEY-123)"
+    end
+
+    def find_jira_issues(key: nil, search_title: true, search_commits: false, search_branch: false, search_body: false)
       # Support multiple JIRA projects
       keys = key.kind_of?(Array) ? key.join("|") : key
       jira_key_regex_string = "((?:#{keys})-[0-9]+)"
@@ -101,7 +116,7 @@ module Danger
         end
       end
 
-      if jira_issues.empty?
+      if search_body
         vcs_host.pr_body.gsub(regexp) do |match|
           jira_issues << match
         end
@@ -110,8 +125,8 @@ module Danger
     end
 
     def should_skip_jira?(search_title: true)
-      # Consider first occurrence of 'no-jira'
-      regexp = Regexp.new("no-jira", true)
+      # Consider first occurrence of 'no-jira' or nojira
+      regexp = Regexp.new("(no-jira|nojira)", true)
 
       if search_title
         vcs_host.pr_title.gsub(regexp) do |match|
@@ -120,6 +135,10 @@ module Danger
       end
 
       vcs_host.pr_body.gsub(regexp) do |match|
+        return true unless match.empty?
+      end
+
+      vcs_host.branch_for_head.gsub(regexp) do |match|
         return true unless match.empty?
       end
 
