@@ -23,6 +23,7 @@ jira.check(
   search_title: true,
   search_commits: false,
   search_branch: false,
+  search_body: false,
   fail_on_warning: false,
   report_missing: true,
   skippable: true
@@ -52,7 +53,7 @@ With "KEY-123" in the PR title or PR body, Danger will comment with:
 
 ## Skipping
 
-You can skip danger checking for a JIRA issue by having `[no-jira]` in your title or PR body.
+You can skip danger checking for a JIRA issue by if `no-jira` is provided on the PR title, description or commits. `nojira` is also allowed on branch names.
 
 ## License
 

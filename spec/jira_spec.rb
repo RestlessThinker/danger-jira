@@ -54,9 +54,35 @@ module Danger
           key: "WEB",
           search_title: false,
           search_commits: false,
-          search_branch: false
+          search_branch: false,
+          search_body: true
         )
         expect(issues).to eq(["WEB-126"])
+      end
+
+      it "outputs error message for title" do
+        error_string = @jira.error_message_for(true, false, false, false)
+        expect(error_string).to eq("This PR does not contain any JIRA issue keys in the PR title (e.g. KEY-123)")
+      end
+
+      it "outputs error message for title, commits" do
+        error_string = @jira.error_message_for(true, true, false, false)
+        expect(error_string).to eq("This PR does not contain any JIRA issue keys in the PR title, commit messages (e.g. KEY-123)")
+      end
+
+      it "outputs error message for title, commits, branch" do
+        error_string = @jira.error_message_for(true, true, true, false)
+        expect(error_string).to eq("This PR does not contain any JIRA issue keys in the PR title, commit messages, branch name (e.g. KEY-123)")
+      end
+
+      it "outputs error message for title, commits, branch, body" do
+        error_string = @jira.error_message_for(true, true, true, true)
+        expect(error_string).to eq("This PR does not contain any JIRA issue keys in the PR title, commit messages, branch name, body (e.g. KEY-123)")
+      end
+
+      it "outputs error message for title, branch" do
+        error_string = @jira.error_message_for(true, false, true, false)
+        expect(error_string).to eq("This PR does not contain any JIRA issue keys in the PR title, branch name (e.g. KEY-123)")
       end
 
       it "can find no-jira in pr body" do
@@ -68,6 +94,32 @@ module Danger
       it "can find no-jira in title" do
         allow(@jira).to receive_message_chain("github.pr_title").and_return("[no-jira] Ticket doesn't need jira but [WEB-123] and WEB-123")
         result = @jira.should_skip_jira?
+        expect(result).to be(true)
+      end
+
+      it "can find no-jira in branch name" do
+        allow(@jira).to receive_message_chain("github.pr_body").and_return("")
+        allow(@jira).to receive_message_chain("github.branch_for_head").and_return("feat/no-jira/somefeature")
+        result = @jira.should_skip_jira?(search_title: false)
+        expect(result).to be(true)
+      end
+
+      it "can find nojira in pr body" do
+        allow(@jira).to receive_message_chain("github.pr_body").and_return("[nojira] Ticket doesn't need a jira but [WEB-123] WEB-123")
+        result = @jira.should_skip_jira?(search_title: false)
+        expect(result).to be(true)
+      end
+
+      it "can find nojira in title" do
+        allow(@jira).to receive_message_chain("github.pr_title").and_return("[nojira] Ticket doesn't need jira but [WEB-123] and WEB-123")
+        result = @jira.should_skip_jira?
+        expect(result).to be(true)
+      end
+
+      it "can find nojira in branch name" do
+        allow(@jira).to receive_message_chain("github.pr_body").and_return("")
+        allow(@jira).to receive_message_chain("github.branch_for_head").and_return("feat/nojira/somefeature")
+        result = @jira.should_skip_jira?(search_title: false)
         expect(result).to be(true)
       end
 
