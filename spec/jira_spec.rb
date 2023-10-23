@@ -104,6 +104,13 @@ module Danger
         expect(result).to be(true)
       end
 
+      it "can find NOJIRA in branch name" do
+        allow(@jira).to receive_message_chain("github.pr_body").and_return("")
+        allow(@jira).to receive_message_chain("github.branch_for_head").and_return("feat/NOJIRA/somefeature")
+        result = @jira.should_skip_jira?(search_title: false)
+        expect(result).to be(true)
+      end
+
       it "can find nojira in pr body" do
         allow(@jira).to receive_message_chain("github.pr_body").and_return("[nojira] Ticket doesn't need a jira but [WEB-123] WEB-123")
         result = @jira.should_skip_jira?(search_title: false)

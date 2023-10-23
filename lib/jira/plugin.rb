@@ -126,7 +126,7 @@ module Danger
 
     def should_skip_jira?(search_title: true)
       # Consider first occurrence of 'no-jira' or nojira
-      regexp = Regexp.new("(no-jira|nojira)", true)
+      regexp = Regexp.new("(no-jira|nojira|NO-JIRA|NOJIRA)", true)
 
       if search_title
         vcs_host.pr_title.gsub(regexp) do |match|
