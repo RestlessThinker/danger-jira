@@ -75,6 +75,7 @@ module Danger
     private
 
     def vcs_host
+      return bitbucket_cloud if defined? @dangerfile.bitbucket_cloud
       return gitlab if defined? @dangerfile.gitlab
       return github
     end
